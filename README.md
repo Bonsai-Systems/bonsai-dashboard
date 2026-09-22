@@ -5,7 +5,7 @@ default wp-admin dashboard with a single branded panel: a welcome message
 plus a quick-links grid (Pages, Posts, Theme Setup, Team, Analytics, Support).
 
 - **Maintained by:** Ben Ervine / The Bonsai Digital Collective
-- **Version:** 1.0.0
+- **Version:** 1.1.0
 - **Requires:** WordPress 6.0+, PHP 8.0+
 - **Dependencies:** `yahnis-elsts/plugin-update-checker` (bundled in `vendor/`).
 
