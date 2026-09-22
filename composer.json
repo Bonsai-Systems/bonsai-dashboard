@@ -1,0 +1,8 @@
+{
+    "name": "bonsai-systems/bonsai-dashboard",
+    "description": "Replaces the default wp-admin dashboard with a branded welcome panel and quick-links grid.",
+    "license": "GPL-2.0-or-later",
+    "require": {
+        "yahnis-elsts/plugin-update-checker": "^5.6"
+    }
+}

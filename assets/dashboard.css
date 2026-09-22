@@ -1,0 +1,170 @@
+/**
+ * dashboard.css — Bonsai Dashboard widget styling.
+ *
+ * The widget still renders inside WordPress's normal postbox chrome (title
+ * bar, drag handle) — only the collapse toggle and Screen Options tab are
+ * hidden below, since there's nothing else on the page to reorder/toggle.
+ *
+ * --bonsai-primary/--bonsai-secondary default to the Bonsai brand colours
+ * below so the widget still looks intentional on a site with no theme brand
+ * colours set. class-dashboard.php::print_brand_colour_overrides() overrides
+ * both from the active theme's Site Settings (primary_colour/secondary_colour)
+ * when that theme/ACF is active — this plugin degrades to the defaults below
+ * on any other theme rather than requiring it.
+ */
+
+.bonsai-dashboard {
+  --bonsai-primary: #ee4367;
+  --bonsai-secondary: #000000;
+}
+
+body.index-php #screen-options-link-wrap {
+  display: none;
+}
+
+/* Forces the widget's own postbox column to the full dashboard width and
+   hides the other (now-empty, since every other widget is stripped) postbox
+   columns — WordPress's own #postbox-container-N column-width rules key off
+   the "Screen Options" column count (.columns-2/.columns-3 body classes),
+   which this plugin no longer exposes a way to change (Screen Options tab is
+   hidden above), so this can't just be left to that setting. !important
+   guards against wp-admin core's own more specific columns-N selectors on
+   WordPress versions where ID-selector specificity alone might not be enough
+   to win reliably. */
+#dashboard-widgets #postbox-container-1 {
+  width: 100% !important;
+  float: none !important;
+}
+
+#dashboard-widgets #postbox-container-2,
+#dashboard-widgets #postbox-container-3,
+#dashboard-widgets #postbox-container-4 {
+  display: none !important;
+}
+
+#bonsai_dashboard_welcome .handlediv {
+  display: none;
+}
+
+#bonsai_dashboard_welcome .inside {
+  margin: 0;
+  padding: 0;
+}
+
+.bonsai-dashboard__welcome {
+  padding: 24px 20px;
+  background: linear-gradient(135deg, #000000, #263a63);
+  color: #fff;
+}
+
+.bonsai-dashboard__heading {
+  margin: 0 0 4px;
+  color: #fff;
+  font-size: 20px;
+}
+
+.bonsai-dashboard__text {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+/* Welcome text now comes from a WYSIWYG field (wp_editor(), teeny toolbar —
+   see class-admin-page.php) and can contain paragraphs/lists/links, not just
+   a single line, so its child elements need their own spacing/colour rather
+   than relying on .bonsai-dashboard__text alone. */
+.bonsai-dashboard__text p {
+  margin: 0 0 8px;
+}
+
+.bonsai-dashboard__text p:last-child {
+  margin-bottom: 0;
+}
+
+.bonsai-dashboard__text ul,
+.bonsai-dashboard__text ol {
+  margin: 0 0 8px 20px;
+}
+
+.bonsai-dashboard__text a {
+  color: #fff;
+  text-decoration: underline;
+}
+
+/* Fixed 3 columns — with up to 5 possible cards (Pages, Posts, Theme Setup,
+   Team, Analytics, Support) this is a 3x2 grid; fewer cards (e.g. no Team CPT,
+   or Analytics left unconfigured) just leave the last row short rather than
+   reflowing to a different column count. Narrower admin viewports (wp-admin's
+   own responsive breakpoints) drop to 2, then 1, so cards don't get too
+   cramped. */
+.bonsai-dashboard__grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: #dcdcde;
+  container-type: inline-size;
+}
+
+@media screen and (max-width: 782px) {
+  .bonsai-dashboard__grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .bonsai-dashboard__grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Square cards (1:1) rather than a fixed padding-driven height, so a card
+   stays square as the 3-column grid's own width changes across admin
+   viewport sizes — the icon size below is clamp()'d off the viewport for the
+   same reason, so it grows/shrinks roughly in step with the card itself
+   rather than looking tiny in a big square or cramped in a small one. */
+.bonsai-dashboard__card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  aspect-ratio: 1 / 1;
+  padding: 16px;
+  background: #fff;
+  text-decoration: none;
+  color: #1d2327;
+  text-align: center;
+}
+
+.bonsai-dashboard__card:hover,
+.bonsai-dashboard__card:focus {
+  background: var(--bonsai-secondary);
+  color: #fff;
+}
+
+.bonsai-dashboard__card:hover .dashicons,
+.bonsai-dashboard__card:focus .dashicons,
+.bonsai-dashboard__card:hover .bonsai-dashboard__card-sub,
+.bonsai-dashboard__card:focus .bonsai-dashboard__card-sub {
+  color: #fff;
+}
+
+.bonsai-dashboard__card .dashicons {
+  width: clamp(32px, 6cqw, 64px);
+  height: clamp(32px, 6cqw, 64px);
+  font-size: clamp(32px, 6cqw, 64px);
+  color: var(--bonsai-primary);
+}
+
+/* cqw (container query width, relative to .bonsai-dashboard__grid) needs
+   container-type set on the grid — see .bonsai-dashboard__grid below. Browsers
+   without container query support (older than ~2023) just keep the clamp()'s
+   fixed min value (32px) throughout, which still looks fine — this is a
+   progressive enhancement, not a hard requirement. */
+
+.bonsai-dashboard__card-label {
+  font-weight: 600;
+}
+
+.bonsai-dashboard__card-sub {
+  font-size: 12px;
+  color: #646970;
+}

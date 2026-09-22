@@ -1,0 +1,32 @@
+/**
+ * admin-settings.css — Bonsai Dashboard settings screen: custom-cards
+ * repeater row layout. Enqueued only on Settings → Bonsai Dashboard, see
+ * class-admin-page.php::enqueue_assets().
+ */
+
+.bonsai-dashboard-card-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  margin-bottom: 8px;
+  background: #f6f7f7;
+  border: 1px solid #dcdcde;
+}
+
+.bonsai-dashboard-card-row input[type="text"],
+.bonsai-dashboard-card-row input[type="url"] {
+  flex: 1 1 200px;
+}
+
+.bonsai-dashboard-card-row label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+}
+
+.bonsai-dashboard-card-row .bonsai-dashboard-remove-card {
+  color: #b32d2e;
+}
