@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased] - 2026-09-22
+
+### Added
+- Colour overrides under Settings → Bonsai Dashboard: welcome panel
+  background/text, quick-link card icon/text, and quick-link card
+  hover background/icon-text. All optional (colour picker, clearable) —
+  left blank, the dashboard falls back to its existing behaviour (Bonsai
+  brand colours, or the active theme's ACF brand colours where set).
+
 ## [1.0.0] - 2026-09-22
 
 ### Added

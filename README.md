@@ -45,6 +45,14 @@ system, a shared drive) — each row is a label, URL, dashicon class, and an
 "open in new tab" checkbox. A row with no label or URL is dropped when
 settings are saved. See `includes/class-settings.php`.
 
+Also under **Settings → Bonsai Dashboard**, an optional **colour overrides**
+section: welcome panel background/text, quick-link card icon/text, and
+quick-link card hover background/icon-text (colour picker, clearable). Left
+blank, each falls back to the Bonsai brand colours (or the active theme's ACF
+brand colour fields, where set) — see
+`Bonsai_Dashboard_Widgets::print_brand_colour_overrides()` in
+`includes/class-dashboard.php`.
+
 ## Updates
 
 Self-updates from its GitHub repo (`Bonsai-Systems/bonsai-dashboard`) using

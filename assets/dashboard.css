@@ -11,11 +11,25 @@
  * both from the active theme's Site Settings (primary_colour/secondary_colour)
  * when that theme/ACF is active — this plugin degrades to the defaults below
  * on any other theme rather than requiring it.
+ *
+ * The remaining --bonsai-* custom properties below are the per-site colour
+ * overrides from Settings → Bonsai Dashboard (welcome panel, quick-link
+ * card icon/text, and hover state) — see print_brand_colour_overrides().
+ * --bonsai-icon-color and --bonsai-hover-bg default to
+ * --bonsai-primary/--bonsai-secondary so a site that's only set its theme
+ * brand colours (and none of the explicit overrides) keeps the same look
+ * this plugin had before these fields existed.
  */
 
 .bonsai-dashboard {
   --bonsai-primary: #ee4367;
   --bonsai-secondary: #000000;
+  --bonsai-welcome-bg: linear-gradient(135deg, #000000, #263a63);
+  --bonsai-welcome-text: #ffffff;
+  --bonsai-icon-color: var(--bonsai-primary);
+  --bonsai-text-color: #1d2327;
+  --bonsai-hover-bg: var(--bonsai-secondary);
+  --bonsai-hover-text: #ffffff;
 }
 
 body.index-php #screen-options-link-wrap {
@@ -53,18 +67,18 @@ body.index-php #screen-options-link-wrap {
 
 .bonsai-dashboard__welcome {
   padding: 24px 20px;
-  background: linear-gradient(135deg, #000000, #263a63);
-  color: #fff;
+  background: var(--bonsai-welcome-bg);
+  color: var(--bonsai-welcome-text);
 }
 
 .bonsai-dashboard__heading {
   margin: 0 0 4px;
-  color: #fff;
+  color: var(--bonsai-welcome-text);
   font-size: 20px;
 }
 
 .bonsai-dashboard__text {
-  color: rgba(255, 255, 255, 0.85);
+  color: color-mix(in srgb, var(--bonsai-welcome-text) 85%, transparent);
 }
 
 /* Welcome text now comes from a WYSIWYG field (wp_editor(), teeny toolbar —
@@ -85,7 +99,7 @@ body.index-php #screen-options-link-wrap {
 }
 
 .bonsai-dashboard__text a {
-  color: #fff;
+  color: var(--bonsai-welcome-text);
   text-decoration: underline;
 }
 
@@ -130,28 +144,28 @@ body.index-php #screen-options-link-wrap {
   padding: 16px;
   background: #fff;
   text-decoration: none;
-  color: #1d2327;
+  color: var(--bonsai-text-color);
   text-align: center;
 }
 
 .bonsai-dashboard__card:hover,
 .bonsai-dashboard__card:focus {
-  background: var(--bonsai-secondary);
-  color: #fff;
+  background: var(--bonsai-hover-bg);
+  color: var(--bonsai-hover-text);
 }
 
 .bonsai-dashboard__card:hover .dashicons,
 .bonsai-dashboard__card:focus .dashicons,
 .bonsai-dashboard__card:hover .bonsai-dashboard__card-sub,
 .bonsai-dashboard__card:focus .bonsai-dashboard__card-sub {
-  color: #fff;
+  color: var(--bonsai-hover-text);
 }
 
 .bonsai-dashboard__card .dashicons {
   width: clamp(32px, 6cqw, 64px);
   height: clamp(32px, 6cqw, 64px);
   font-size: clamp(32px, 6cqw, 64px);
-  color: var(--bonsai-primary);
+  color: var(--bonsai-icon-color);
 }
 
 /* cqw (container query width, relative to .bonsai-dashboard__grid) needs

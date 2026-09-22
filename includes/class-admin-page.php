@@ -43,8 +43,9 @@ class Bonsai_Dashboard_Admin_Page {
 		if ( '' === self::$hook_suffix || $hook !== self::$hook_suffix ) {
 			return;
 		}
+		wp_enqueue_style( 'wp-color-picker' );
 		wp_enqueue_style( 'bonsai-dashboard-admin', BONSAI_DASHBOARD_URL . 'assets/admin-settings.css', [], BONSAI_DASHBOARD_VERSION );
-		wp_enqueue_script( 'bonsai-dashboard-admin', BONSAI_DASHBOARD_URL . 'assets/admin-settings.js', [ 'jquery' ], BONSAI_DASHBOARD_VERSION, true );
+		wp_enqueue_script( 'bonsai-dashboard-admin', BONSAI_DASHBOARD_URL . 'assets/admin-settings.js', [ 'jquery', 'wp-color-picker' ], BONSAI_DASHBOARD_VERSION, true );
 	}
 
 	public static function render_page(): void {
@@ -153,9 +154,75 @@ class Bonsai_Dashboard_Admin_Page {
 					</tr>
 				</table>
 
+				<h2><?php esc_html_e( 'Colour overrides', 'bonsai-dashboard' ); ?></h2>
+				<p class="description">
+					<?php esc_html_e( 'Optional — leave any of these blank to use the dashboard\'s built-in Bonsai colours (or the active theme\'s brand colours, where it exposes them).', 'bonsai-dashboard' ); ?>
+				</p>
+
+				<table class="form-table" role="presentation">
+					<tr>
+						<th scope="row"><?php esc_html_e( 'Welcome panel', 'bonsai-dashboard' ); ?></th>
+						<td>
+							<?php
+							self::render_color_field( 'welcome_bg_color', __( 'Background', 'bonsai-dashboard' ), $settings['welcome_bg_color'] );
+							self::render_color_field( 'welcome_text_color', __( 'Text', 'bonsai-dashboard' ), $settings['welcome_text_color'] );
+							?>
+							<p class="description"><?php esc_html_e( 'Background and text colour of the welcome heading/message at the top of the dashboard.', 'bonsai-dashboard' ); ?></p>
+						</td>
+					</tr>
+					<tr>
+						<th scope="row"><?php esc_html_e( 'Quick-link cards', 'bonsai-dashboard' ); ?></th>
+						<td>
+							<?php
+							self::render_color_field( 'icon_color', __( 'Icon', 'bonsai-dashboard' ), $settings['icon_color'] );
+							self::render_color_field( 'text_color', __( 'Text', 'bonsai-dashboard' ), $settings['text_color'] );
+							?>
+							<p class="description"><?php esc_html_e( 'Icon and label colour on the quick-link cards in their normal (non-hover) state.', 'bonsai-dashboard' ); ?></p>
+						</td>
+					</tr>
+					<tr>
+						<th scope="row"><?php esc_html_e( 'Quick-link cards — hover', 'bonsai-dashboard' ); ?></th>
+						<td>
+							<?php
+							self::render_color_field( 'hover_bg_color', __( 'Background', 'bonsai-dashboard' ), $settings['hover_bg_color'] );
+							self::render_color_field( 'hover_text_color', __( 'Icon / text', 'bonsai-dashboard' ), $settings['hover_text_color'] );
+							?>
+							<p class="description"><?php esc_html_e( 'Background and icon/text colour on the quick-link cards when hovered or focused.', 'bonsai-dashboard' ); ?></p>
+						</td>
+					</tr>
+				</table>
+
 				<?php submit_button( __( 'Save settings', 'bonsai-dashboard' ) ); ?>
 			</form>
 		</div>
+		<?php
+	}
+
+	/**
+	 * Renders one labelled colour-picker input. Shared by every row in the
+	 * "Colour overrides" section above — the "bonsai-dashboard-color-picker"
+	 * class turns the plain text input into a swatch picker (see
+	 * assets/admin-settings.js, which calls wp.wpColorPicker() on it). An
+	 * empty value is valid and means "use the built-in default" (see
+	 * class-settings.php::sanitize_color()).
+	 *
+	 * @param string $field Settings array key, used for both the input name and id.
+	 * @param string $label Visible label shown before the input.
+	 * @param string $value Saved hex colour, or '' for "unset".
+	 */
+	private static function render_color_field( string $field, string $label, string $value ): void {
+		?>
+		<span class="bonsai-dashboard-color-field">
+			<label for="bonsai-dashboard-<?php echo esc_attr( $field ); ?>"><?php echo esc_html( $label ); ?></label>
+			<input
+				type="text"
+				id="bonsai-dashboard-<?php echo esc_attr( $field ); ?>"
+				name="settings[<?php echo esc_attr( $field ); ?>]"
+				class="bonsai-dashboard-color-picker"
+				value="<?php echo esc_attr( $value ); ?>"
+				data-default-color=""
+			>
+		</span>
 		<?php
 	}
 

@@ -30,3 +30,16 @@
 .bonsai-dashboard-card-row .bonsai-dashboard-remove-card {
   color: #b32d2e;
 }
+
+.bonsai-dashboard-color-field {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  margin: 0 24px 8px 0;
+  vertical-align: top;
+}
+
+.bonsai-dashboard-color-field label {
+  font-weight: 600;
+}

@@ -94,29 +94,53 @@ class Bonsai_Dashboard_Widgets {
 	}
 
 	/**
-	 * Overrides dashboard.css's --bonsai-primary/--bonsai-secondary defaults
-	 * from the active theme's Site Settings brand colour fields, when those
-	 * ACF fields are actually present. Deliberately reads the ACF options
-	 * fields directly rather than requiring the theme to also fire its own
-	 * front-end hook in admin_head — this plugin has to work (falling back to
-	 * dashboard.css's defaults) on a site whose theme doesn't expose brand
-	 * colour fields at all, per ~/.claude/rules/error-handling.md's "never
-	 * assume a plugin/theme feature is active" rule.
+	 * Overrides dashboard.css's colour custom properties, from two sources:
+	 *
+	 * 1. --bonsai-primary/--bonsai-secondary from the active theme's Site
+	 *    Settings brand colour ACF fields, when present. Deliberately reads
+	 *    the ACF options fields directly rather than requiring the theme to
+	 *    also fire its own front-end hook in admin_head — this plugin has to
+	 *    work (falling back to dashboard.css's defaults) on a site whose
+	 *    theme doesn't expose brand colour fields at all, per
+	 *    ~/.claude/rules/error-handling.md's "never assume a plugin/theme
+	 *    feature is active" rule.
+	 * 2. The explicit colour fields under Settings → Bonsai Dashboard
+	 *    (welcome/icon/text/hover), which are plugin settings rather than
+	 *    theme fields, so they're read regardless of whether ACF is active.
+	 *    dashboard.css defaults --bonsai-icon-color/--bonsai-hover-bg to
+	 *    var(--bonsai-primary)/var(--bonsai-secondary), so leaving these
+	 *    blank still follows the theme's ACF brand colours from (1); setting
+	 *    one explicitly here overrides just that one property.
 	 */
 	public static function print_brand_colour_overrides(): void {
-		if ( ! function_exists( 'get_field' ) ) {
-			return; // ACF inactive — dashboard.css's hardcoded defaults still apply.
-		}
-
-		$primary   = get_field( 'primary_colour_override', 'option' ) ?: get_field( 'primary_colour', 'option' );
-		$secondary = get_field( 'secondary_colour_override', 'option' ) ?: get_field( 'secondary_colour', 'option' );
-
 		$overrides = [];
-		if ( ! empty( $primary ) ) {
-			$overrides['--bonsai-primary'] = $primary;
+
+		if ( function_exists( 'get_field' ) ) {
+			$primary   = get_field( 'primary_colour_override', 'option' ) ?: get_field( 'primary_colour', 'option' );
+			$secondary = get_field( 'secondary_colour_override', 'option' ) ?: get_field( 'secondary_colour', 'option' );
+
+			if ( ! empty( $primary ) ) {
+				$overrides['--bonsai-primary'] = $primary;
+			}
+			if ( ! empty( $secondary ) ) {
+				$overrides['--bonsai-secondary'] = $secondary;
+			}
 		}
-		if ( ! empty( $secondary ) ) {
-			$overrides['--bonsai-secondary'] = $secondary;
+
+		$settings    = Bonsai_Dashboard_Settings::get_settings();
+		$setting_map = [
+			'welcome_bg_color'   => '--bonsai-welcome-bg',
+			'welcome_text_color' => '--bonsai-welcome-text',
+			'icon_color'         => '--bonsai-icon-color',
+			'text_color'         => '--bonsai-text-color',
+			'hover_bg_color'     => '--bonsai-hover-bg',
+			'hover_text_color'   => '--bonsai-hover-text',
+		];
+
+		foreach ( $setting_map as $setting_key => $property ) {
+			if ( ! empty( $settings[ $setting_key ] ) ) {
+				$overrides[ $property ] = $settings[ $setting_key ];
+			}
 		}
 
 		if ( empty( $overrides ) ) {

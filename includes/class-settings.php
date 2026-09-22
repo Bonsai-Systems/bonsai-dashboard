@@ -38,12 +38,18 @@ HTML;
 
 	public static function default_settings(): array {
 		return [
-			'analytics_url'   => '',
-			'support_url'     => self::DEFAULT_SUPPORT_URL,
-			'team_cpt_slug'   => self::DEFAULT_TEAM_CPT_SLUG,
-			'welcome_heading' => self::DEFAULT_WELCOME_HEADING,
-			'welcome_text'    => self::DEFAULT_WELCOME_TEXT,
-			'custom_cards'    => [],
+			'analytics_url'      => '',
+			'support_url'        => self::DEFAULT_SUPPORT_URL,
+			'team_cpt_slug'      => self::DEFAULT_TEAM_CPT_SLUG,
+			'welcome_heading'    => self::DEFAULT_WELCOME_HEADING,
+			'welcome_text'       => self::DEFAULT_WELCOME_TEXT,
+			'custom_cards'       => [],
+			'welcome_bg_color'   => '',
+			'welcome_text_color' => '',
+			'icon_color'         => '',
+			'text_color'         => '',
+			'hover_bg_color'     => '',
+			'hover_text_color'   => '',
 		];
 	}
 
@@ -87,13 +93,38 @@ HTML;
 		$support_url = esc_url_raw( (string) ( $input['support_url'] ?? $current['support_url'] ) );
 
 		update_option( self::OPTION, [
-			'analytics_url'   => esc_url_raw( (string) ( $input['analytics_url'] ?? $current['analytics_url'] ) ),
-			'support_url'     => $support_url ?: self::DEFAULT_SUPPORT_URL,
-			'team_cpt_slug'   => sanitize_key( (string) ( $input['team_cpt_slug'] ?? $current['team_cpt_slug'] ) ) ?: self::DEFAULT_TEAM_CPT_SLUG,
-			'welcome_heading' => sanitize_text_field( (string) ( $input['welcome_heading'] ?? $current['welcome_heading'] ) ),
-			'welcome_text'    => wp_kses_post( (string) ( $input['welcome_text'] ?? $current['welcome_text'] ) ),
-			'custom_cards'    => self::sanitize_custom_cards( $input['custom_cards'] ?? [] ),
+			'analytics_url'      => esc_url_raw( (string) ( $input['analytics_url'] ?? $current['analytics_url'] ) ),
+			'support_url'        => $support_url ?: self::DEFAULT_SUPPORT_URL,
+			'team_cpt_slug'      => sanitize_key( (string) ( $input['team_cpt_slug'] ?? $current['team_cpt_slug'] ) ) ?: self::DEFAULT_TEAM_CPT_SLUG,
+			'welcome_heading'    => sanitize_text_field( (string) ( $input['welcome_heading'] ?? $current['welcome_heading'] ) ),
+			'welcome_text'       => wp_kses_post( (string) ( $input['welcome_text'] ?? $current['welcome_text'] ) ),
+			'custom_cards'       => self::sanitize_custom_cards( $input['custom_cards'] ?? [] ),
+			'welcome_bg_color'   => self::sanitize_color( (string) ( $input['welcome_bg_color'] ?? $current['welcome_bg_color'] ) ),
+			'welcome_text_color' => self::sanitize_color( (string) ( $input['welcome_text_color'] ?? $current['welcome_text_color'] ) ),
+			'icon_color'         => self::sanitize_color( (string) ( $input['icon_color'] ?? $current['icon_color'] ) ),
+			'text_color'         => self::sanitize_color( (string) ( $input['text_color'] ?? $current['text_color'] ) ),
+			'hover_bg_color'     => self::sanitize_color( (string) ( $input['hover_bg_color'] ?? $current['hover_bg_color'] ) ),
+			'hover_text_color'   => self::sanitize_color( (string) ( $input['hover_text_color'] ?? $current['hover_text_color'] ) ),
 		], false );
+	}
+
+	/**
+	 * Sanitises one colour override field. Every colour field here is
+	 * optional — an empty string means "use the dashboard's built-in
+	 * default" (see dashboard.css and class-dashboard.php's
+	 * print_brand_colour_overrides()), so an invalid/unparseable value is
+	 * dropped back to blank rather than saved as-is, same as a card row
+	 * missing a label/url is dropped rather than kept dead
+	 * (sanitize_custom_cards() above).
+	 *
+	 * @param string $value Raw hex colour, e.g. "#ee4367".
+	 * @return string Validated hex colour, or '' if blank/invalid.
+	 */
+	private static function sanitize_color( string $value ): string {
+		if ( '' === trim( $value ) ) {
+			return '';
+		}
+		return (string) ( sanitize_hex_color( $value ) ?: '' );
 	}
 
 	/**

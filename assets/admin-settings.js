@@ -1,7 +1,8 @@
 /**
  * admin-settings.js — Bonsai Dashboard settings screen: the custom-cards
- * repeater (add/remove rows). Enqueued only on Settings → Bonsai Dashboard,
- * see class-admin-page.php::enqueue_assets().
+ * repeater (add/remove rows) and the colour-override swatch pickers.
+ * Enqueued only on Settings → Bonsai Dashboard, see
+ * class-admin-page.php::enqueue_assets().
  *
  * Row indices only ever increment (never reused, even after a remove) so two
  * rows can never collide on the same `settings[custom_cards][N][...]` name —
@@ -33,6 +34,12 @@
 		$container.on('click', '.bonsai-dashboard-remove-card', function (e) {
 			e.preventDefault();
 			$(this).closest('.bonsai-dashboard-card-row').remove();
+		});
+
+		// Colour overrides are all optional — clearable so a site can drop
+		// back to the built-in default instead of being forced to pick a colour.
+		$('.bonsai-dashboard-color-picker').wpColorPicker({
+			defaultColor: false
 		});
 	});
 })(jQuery);
