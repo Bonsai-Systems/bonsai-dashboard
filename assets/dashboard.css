@@ -103,34 +103,51 @@ body.index-php #screen-options-link-wrap {
   text-decoration: underline;
 }
 
-/* Fixed 3 columns — with up to 5 possible cards (Pages, Posts, Theme Setup,
-   Team, Analytics, Support) this is a 3x2 grid; fewer cards (e.g. no Team CPT,
-   or Analytics left unconfigured) just leave the last row short rather than
-   reflowing to a different column count. Narrower admin viewports (wp-admin's
-   own responsive breakpoints) drop to 2, then 1, so cards don't get too
-   cramped. */
+/* Mobile-first column steps so square cards don't get oversized on wide
+   screens: 1 → 2 (above 480px) → 3 (above wp-admin's own 782px breakpoint)
+   → 4 (992px+) → 5 (1200px+) → 6 (1980px+). Explicit column counts rather
+   than auto-fill, so a short last row stays short instead of every card
+   reflowing when a conditional card (Team, Analytics) is absent. */
 .bonsai-dashboard__grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: 1fr;
   gap: 1px;
   background: #dcdcde;
   container-type: inline-size;
 }
 
-@media screen and (max-width: 782px) {
+@media screen and (min-width: 481px) {
   .bonsai-dashboard__grid {
     grid-template-columns: repeat(2, 1fr);
   }
 }
 
-@media screen and (max-width: 480px) {
+@media screen and (min-width: 783px) {
   .bonsai-dashboard__grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media screen and (min-width: 992px) {
+  .bonsai-dashboard__grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media screen and (min-width: 1200px) {
+  .bonsai-dashboard__grid {
+    grid-template-columns: repeat(5, 1fr);
+  }
+}
+
+@media screen and (min-width: 1980px) {
+  .bonsai-dashboard__grid {
+    grid-template-columns: repeat(6, 1fr);
   }
 }
 
 /* Square cards (1:1) rather than a fixed padding-driven height, so a card
-   stays square as the 3-column grid's own width changes across admin
+   stays square as the grid's own width changes across admin
    viewport sizes — the icon size below is clamp()'d off the viewport for the
    same reason, so it grows/shrinks roughly in step with the card itself
    rather than looking tiny in a big square or cramped in a small one. */
