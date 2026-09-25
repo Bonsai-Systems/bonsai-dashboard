@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased] - 2026-09-25
+
+### Added
+- Optional logo above the welcome heading, chosen from the media library
+  under Settings → Bonsai Dashboard (stored as an attachment ID, so it
+  survives staging → live domain moves). Configurable max width (40–600px,
+  default 200px), scales down on narrow screens. Alt text comes from the
+  media library, falling back to the site name.
+
 ## [1.1.0] - 2026-09-22
 
 ### Added

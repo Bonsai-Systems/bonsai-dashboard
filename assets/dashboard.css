@@ -30,6 +30,7 @@
   --bonsai-text-color: #1d2327;
   --bonsai-hover-bg: var(--bonsai-secondary);
   --bonsai-hover-text: #ffffff;
+  --bonsai-logo-width: 200px;
 }
 
 body.index-php #screen-options-link-wrap {
@@ -69,6 +70,20 @@ body.index-php #screen-options-link-wrap {
   padding: 24px 20px;
   background: var(--bonsai-welcome-bg);
   color: var(--bonsai-welcome-text);
+}
+
+/* Optional logo above the heading (Settings → Bonsai Dashboard). Width comes
+   from the settings screen via --bonsai-logo-width; max-width: 100% stops a
+   wide logo overflowing the panel on narrow admin viewports. */
+.bonsai-dashboard__logo {
+  margin: 0 0 16px;
+}
+
+.bonsai-dashboard__logo-img {
+  display: block;
+  width: var(--bonsai-logo-width);
+  max-width: 100%;
+  height: auto;
 }
 
 .bonsai-dashboard__heading {

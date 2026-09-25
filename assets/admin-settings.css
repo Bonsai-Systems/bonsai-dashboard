@@ -31,6 +31,26 @@
   color: #b32d2e;
 }
 
+/* wp-admin's .button-link sets its own display, which beats the UA
+   stylesheet's [hidden] rule — restate it so Remove/preview actually hide. */
+.bonsai-dashboard-logo-field [hidden] {
+  display: none;
+}
+
+.bonsai-dashboard-logo-preview img {
+  display: block;
+  max-width: 300px;
+  height: auto;
+  padding: 8px;
+  background: #f6f7f7;
+  border: 1px solid #dcdcde;
+}
+
+.bonsai-dashboard-logo-field .bonsai-dashboard-logo-remove {
+  margin-left: 8px;
+  color: #b32d2e;
+}
+
 .bonsai-dashboard-color-field {
   display: inline-flex;
   flex-direction: column;

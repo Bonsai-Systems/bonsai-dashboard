@@ -143,6 +143,12 @@ class Bonsai_Dashboard_Widgets {
 			}
 		}
 
+		// Not a colour, but the same "setting → custom property" mechanism, so
+		// it rides along here rather than printing a second <style> block.
+		if ( ! empty( $settings['logo_id'] ) ) {
+			$overrides['--bonsai-logo-width'] = absint( $settings['logo_width'] ) . 'px';
+		}
+
 		if ( empty( $overrides ) ) {
 			return;
 		}
@@ -166,9 +172,15 @@ class Bonsai_Dashboard_Widgets {
 			: sprintf( __( 'Welcome back, %s', 'bonsai-dashboard' ), $user->display_name );
 
 		$links = self::get_quick_links( $settings );
+		$logo  = self::get_logo_markup( $settings );
 		?>
 		<div class="bonsai-dashboard">
 			<div class="bonsai-dashboard__welcome">
+				<?php if ( $logo ) : ?>
+					<div class="bonsai-dashboard__logo">
+						<?php echo $logo; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built by wp_get_attachment_image(), which escapes its own attributes. ?>
+					</div>
+				<?php endif; ?>
 				<h2 class="bonsai-dashboard__heading"><?php echo esc_html( $heading ); ?></h2>
 				<?php if ( $settings['welcome_text'] ) : ?>
 					<div class="bonsai-dashboard__text">
@@ -205,6 +217,37 @@ class Bonsai_Dashboard_Widgets {
 			<?php endif; ?>
 		</div>
 		<?php
+	}
+
+	/**
+	 * Builds the welcome panel logo <img>, or '' when none is set or the
+	 * attachment has since been deleted from the media library (the saved ID
+	 * isn't re-validated on every load, so a missing file just renders
+	 * nothing rather than a broken image). Uses the attachment's own alt text,
+	 * falling back to the site name so the image is never alt-less.
+	 *
+	 * @param array $settings Bonsai_Dashboard_Settings::get_settings().
+	 * @return string Image markup, or ''.
+	 */
+	private static function get_logo_markup( array $settings ): string {
+		$logo_id = absint( $settings['logo_id'] );
+		if ( ! $logo_id ) {
+			return '';
+		}
+
+		$alt = trim( (string) get_post_meta( $logo_id, '_wp_attachment_image_alt', true ) );
+
+		return (string) wp_get_attachment_image(
+			$logo_id,
+			'full',
+			false,
+			[
+				'class'   => 'bonsai-dashboard__logo-img',
+				'alt'     => $alt ?: get_bloginfo( 'name' ),
+				'sizes'   => absint( $settings['logo_width'] ) . 'px',
+				'loading' => 'eager',
+			]
+		);
 	}
 
 	/**

@@ -7,7 +7,8 @@
  * Support defaults to the Bonsai Digital Collective Zendesk, but is
  * overridable per site. The Team quick link's post type slug is also
  * configurable, since not every theme names it the same way — see
- * class-dashboard.php. Custom cards are a free-form repeater for anything
+ * class-dashboard.php. An optional logo (media library attachment) can sit
+ * above the welcome heading. Custom cards are a free-form repeater for anything
  * else a given site wants on its dashboard (a client portal, a booking
  * system, a shared drive — whatever doesn't fit the built-in links).
  *
@@ -28,6 +29,12 @@ class Bonsai_Dashboard_Settings {
 
 	const DEFAULT_CARD_ICON = 'dashicons-admin-links';
 
+	const DEFAULT_LOGO_WIDTH = 200;
+
+	const MIN_LOGO_WIDTH = 40;
+
+	const MAX_LOGO_WIDTH = 600;
+
 	const DEFAULT_WELCOME_HEADING = 'Welcome to your WordPress admin area, brought to you by The Bonsai Digital Collective';
 
 	const DEFAULT_WELCOME_TEXT = <<<'HTML'
@@ -41,6 +48,8 @@ HTML;
 			'analytics_url'      => '',
 			'support_url'        => self::DEFAULT_SUPPORT_URL,
 			'team_cpt_slug'      => self::DEFAULT_TEAM_CPT_SLUG,
+			'logo_id'            => 0,
+			'logo_width'         => self::DEFAULT_LOGO_WIDTH,
 			'welcome_heading'    => self::DEFAULT_WELCOME_HEADING,
 			'welcome_text'       => self::DEFAULT_WELCOME_TEXT,
 			'custom_cards'       => [],
@@ -96,6 +105,8 @@ HTML;
 			'analytics_url'      => esc_url_raw( (string) ( $input['analytics_url'] ?? $current['analytics_url'] ) ),
 			'support_url'        => $support_url ?: self::DEFAULT_SUPPORT_URL,
 			'team_cpt_slug'      => sanitize_key( (string) ( $input['team_cpt_slug'] ?? $current['team_cpt_slug'] ) ) ?: self::DEFAULT_TEAM_CPT_SLUG,
+			'logo_id'            => self::sanitize_logo_id( $input['logo_id'] ?? $current['logo_id'] ),
+			'logo_width'         => self::sanitize_logo_width( $input['logo_width'] ?? $current['logo_width'] ),
 			'welcome_heading'    => sanitize_text_field( (string) ( $input['welcome_heading'] ?? $current['welcome_heading'] ) ),
 			'welcome_text'       => wp_kses_post( (string) ( $input['welcome_text'] ?? $current['welcome_text'] ) ),
 			'custom_cards'       => self::sanitize_custom_cards( $input['custom_cards'] ?? [] ),
@@ -106,6 +117,36 @@ HTML;
 			'hover_bg_color'     => self::sanitize_color( (string) ( $input['hover_bg_color'] ?? $current['hover_bg_color'] ) ),
 			'hover_text_color'   => self::sanitize_color( (string) ( $input['hover_text_color'] ?? $current['hover_text_color'] ) ),
 		], false );
+	}
+
+	/**
+	 * Sanitises the welcome panel logo. Stored as an attachment ID rather than
+	 * a URL so it survives a staging → live domain change without a
+	 * search-replace. Anything that isn't an existing image attachment is
+	 * dropped back to 0 ("no logo").
+	 *
+	 * @param mixed $value Raw attachment ID from the media picker's hidden input.
+	 * @return int Image attachment ID, or 0.
+	 */
+	private static function sanitize_logo_id( $value ): int {
+		$id = absint( $value );
+		return ( $id && wp_attachment_is_image( $id ) ) ? $id : 0;
+	}
+
+	/**
+	 * Sanitises the logo's max display width (px), clamped to a sensible
+	 * range so a typo can't blow the welcome panel out. Blank/0 falls back
+	 * to the default.
+	 *
+	 * @param mixed $value Raw number input.
+	 * @return int Width in px.
+	 */
+	private static function sanitize_logo_width( $value ): int {
+		$width = absint( $value );
+		if ( ! $width ) {
+			return self::DEFAULT_LOGO_WIDTH;
+		}
+		return max( self::MIN_LOGO_WIDTH, min( self::MAX_LOGO_WIDTH, $width ) );
 	}
 
 	/**

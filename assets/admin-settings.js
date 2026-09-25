@@ -1,6 +1,7 @@
 /**
- * admin-settings.js — Bonsai Dashboard settings screen: the custom-cards
- * repeater (add/remove rows) and the colour-override swatch pickers.
+ * admin-settings.js — Bonsai Dashboard settings screen: the logo media
+ * picker, the custom-cards repeater (add/remove rows) and the
+ * colour-override swatch pickers.
  * Enqueued only on Settings → Bonsai Dashboard, see
  * class-admin-page.php::enqueue_assets().
  *
@@ -13,7 +14,60 @@
 (function ($) {
 	'use strict';
 
+	/**
+	 * Logo picker — opens the core media library modal (enqueued via
+	 * wp_enqueue_media()) and stores the chosen attachment's ID in a hidden
+	 * input. The preview uses the modal's own "medium" size URL where one
+	 * exists, falling back to the full-size URL (e.g. for SVGs, which get no
+	 * intermediate sizes).
+	 */
+	function bonsai_initLogoPicker() {
+		var $select = $('#bonsai-dashboard-logo-select');
+		var $remove = $('#bonsai-dashboard-logo-remove');
+		var $input = $('#bonsai-dashboard-logo-id');
+		var $preview = $('.bonsai-dashboard-logo-preview');
+		var frame;
+
+		if (!$select.length || typeof wp === 'undefined' || !wp.media) {
+			return;
+		}
+
+		$select.on('click.bonsai_dashboard', function (e) {
+			e.preventDefault();
+
+			if (!frame) {
+				frame = wp.media({
+					title: $select.text(),
+					library: { type: 'image' },
+					multiple: false
+				});
+
+				frame.on('select', function () {
+					var attachment = frame.state().get('selection').first().toJSON();
+					var url = attachment.sizes && attachment.sizes.medium ? attachment.sizes.medium.url : attachment.url;
+
+					$input.val(attachment.id);
+					$preview.empty().append(
+						$('<img>', { src: url, alt: attachment.alt || '' })
+					).prop('hidden', false);
+					$remove.prop('hidden', false);
+				});
+			}
+
+			frame.open();
+		});
+
+		$remove.on('click.bonsai_dashboard', function (e) {
+			e.preventDefault();
+			$input.val('0');
+			$preview.empty().prop('hidden', true);
+			$remove.prop('hidden', true);
+		});
+	}
+
 	$(function () {
+		bonsai_initLogoPicker();
+
 		var $container = $('#bonsai-dashboard-custom-cards');
 		var $template = $('#bonsai-dashboard-card-template');
 

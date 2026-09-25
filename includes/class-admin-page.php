@@ -43,6 +43,7 @@ class Bonsai_Dashboard_Admin_Page {
 		if ( '' === self::$hook_suffix || $hook !== self::$hook_suffix ) {
 			return;
 		}
+		wp_enqueue_media(); // Media library modal for the logo picker.
 		wp_enqueue_style( 'wp-color-picker' );
 		wp_enqueue_style( 'bonsai-dashboard-admin', BONSAI_DASHBOARD_URL . 'assets/admin-settings.css', [], BONSAI_DASHBOARD_VERSION );
 		wp_enqueue_script( 'bonsai-dashboard-admin', BONSAI_DASHBOARD_URL . 'assets/admin-settings.js', [ 'jquery', 'wp-color-picker' ], BONSAI_DASHBOARD_VERSION, true );
@@ -63,7 +64,7 @@ class Bonsai_Dashboard_Admin_Page {
 			<?php endif; ?>
 
 			<p class="description">
-				<?php esc_html_e( 'These control the Analytics/Support quick links, the Team post type used for the Team quick link, any custom cards, and the welcome message shown on this site\'s wp-admin dashboard. Pages/Posts/Theme Setup always link to this site\'s own admin screens, so there\'s nothing to configure for those.', 'bonsai-dashboard' ); ?>
+				<?php esc_html_e( 'These control the logo, the Analytics/Support quick links, the Team post type used for the Team quick link, any custom cards, and the welcome message shown on this site\'s wp-admin dashboard. Pages/Posts/Theme Setup always link to this site\'s own admin screens, so there\'s nothing to configure for those.', 'bonsai-dashboard' ); ?>
 			</p>
 
 			<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
@@ -71,6 +72,30 @@ class Bonsai_Dashboard_Admin_Page {
 				<input type="hidden" name="action" value="bonsai_dashboard_save_settings">
 
 				<table class="form-table" role="presentation">
+					<tr>
+						<th scope="row"><?php esc_html_e( 'Logo', 'bonsai-dashboard' ); ?></th>
+						<td>
+							<?php
+							$logo_id      = absint( $settings['logo_id'] );
+							$logo_preview = $logo_id ? wp_get_attachment_image( $logo_id, 'medium' ) : '';
+							?>
+							<div class="bonsai-dashboard-logo-field">
+								<div class="bonsai-dashboard-logo-preview"<?php echo $logo_preview ? '' : ' hidden'; ?>>
+									<?php echo $logo_preview; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built by wp_get_attachment_image(), which escapes its own attributes. ?>
+								</div>
+								<input type="hidden" id="bonsai-dashboard-logo-id" name="settings[logo_id]" value="<?php echo esc_attr( (string) $logo_id ); ?>">
+								<p>
+									<button type="button" class="button" id="bonsai-dashboard-logo-select"><?php esc_html_e( 'Select logo', 'bonsai-dashboard' ); ?></button>
+									<button type="button" class="button-link bonsai-dashboard-logo-remove" id="bonsai-dashboard-logo-remove"<?php echo $logo_id ? '' : ' hidden'; ?>><?php esc_html_e( 'Remove', 'bonsai-dashboard' ); ?></button>
+								</p>
+								<p>
+									<label for="bonsai-dashboard-logo-width"><?php esc_html_e( 'Max width (px)', 'bonsai-dashboard' ); ?></label>
+									<input type="number" id="bonsai-dashboard-logo-width" name="settings[logo_width]" class="small-text" min="<?php echo esc_attr( (string) Bonsai_Dashboard_Settings::MIN_LOGO_WIDTH ); ?>" max="<?php echo esc_attr( (string) Bonsai_Dashboard_Settings::MAX_LOGO_WIDTH ); ?>" step="1" value="<?php echo esc_attr( (string) $settings['logo_width'] ); ?>">
+								</p>
+							</div>
+							<p class="description"><?php esc_html_e( 'Optional — shown above the welcome heading. Uses the image\'s alt text from the media library (or the site name if none is set). Shrinks automatically on narrow screens.', 'bonsai-dashboard' ); ?></p>
+						</td>
+					</tr>
 					<tr>
 						<th scope="row"><label for="bonsai-dashboard-welcome-heading"><?php esc_html_e( 'Welcome heading', 'bonsai-dashboard' ); ?></label></th>
 						<td>
