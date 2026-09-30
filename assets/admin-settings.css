@@ -1,7 +1,8 @@
 /**
  * admin-settings.css — Bonsai Dashboard settings screen: custom-cards
  * repeater row layout. Enqueued only on Settings → Bonsai Dashboard, see
- * class-admin-page.php::enqueue_assets().
+ * class-admin-page.php::enqueue_assets(). Layered on bonsai-admin-ui.css,
+ * which supplies the header, cards, form controls and buttons.
  */
 
 .bonsai-dashboard-card-row {
@@ -13,6 +14,7 @@
   margin-bottom: 8px;
   background: #f6f7f7;
   border: 1px solid #dcdcde;
+  border-radius: 6px;
 }
 
 .bonsai-dashboard-card-row input[type="text"],
@@ -44,6 +46,7 @@
   padding: 8px;
   background: #f6f7f7;
   border: 1px solid #dcdcde;
+  border-radius: 6px;
 }
 
 .bonsai-dashboard-logo-field .bonsai-dashboard-logo-remove {

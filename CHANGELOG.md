@@ -5,7 +5,9 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased] - 2026-09-25
+## [Unreleased]
+
+## [1.2.0] - 2026-09-30
 
 ### Added
 - Optional logo above the welcome heading, chosen from the media library
@@ -13,6 +15,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   survives staging → live domain moves). Configurable max width (40–600px,
   default 200px), scales down on narrow screens. Alt text comes from the
   media library, falling back to the site name.
+
+### Changed
+- Settings → Bonsai Dashboard restyled with the Bonsai admin design system
+  (`assets/bonsai-admin-ui.css`, `includes/class-admin-ui.php`): logo header
+  with version, GitHub/changelog links and a "View dashboard" link;
+  "Dashboard content" and "Colour overrides" in separate cards. No option or
+  field changes.
+
+### Fixed
+- "Settings saved." showed twice after saving: core already prints it for
+  Settings sub-pages loaded with `?settings-updated`. Removed the plugin's copy.
+- Custom-card repeater inputs had placeholders but no accessible names; added
+  `aria-label`s.
 
 ## [1.1.0] - 2026-09-22
 
