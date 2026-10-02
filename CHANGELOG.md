@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.3.0] - 2026-10-02
+
 ### Added
 - White Label tab on Settings → Bonsai Dashboard, ported from the Vision
   Website plugin as a White Label CMS replacement: hide WordPress branding,
