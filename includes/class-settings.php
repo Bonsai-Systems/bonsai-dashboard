@@ -73,62 +73,101 @@ HTML;
 	}
 
 	/**
-	 * Sanitises and saves every field. URL fields go through esc_url_raw()
-	 * (input sanitisation for a value that gets echoed through esc_url() on
-	 * output — see ~/.claude/rules/common/security.md), the team post type
-	 * slug through sanitize_key(), other text fields through
+	 * Which option keys each settings tab owns. The settings screen has one
+	 * form per tab (see class-admin-page.php), so a save only touches the
+	 * keys of the tab that was submitted — every other key keeps its saved
+	 * value. The White Label tab isn't listed: it has its own option (see
+	 * class-white-label.php).
+	 */
+	const SECTIONS = [
+		'welcome'     => [ 'logo_id', 'logo_width', 'welcome_heading', 'welcome_text' ],
+		'quick-links' => [ 'analytics_url', 'support_url', 'team_cpt_slug', 'custom_cards' ],
+		'colours'     => [ 'welcome_bg_color', 'welcome_text_color', 'icon_color', 'text_color', 'hover_bg_color', 'hover_text_color' ],
+	];
+
+	/**
+	 * Sanitises and saves one tab's fields (self::SECTIONS), leaving every
+	 * other key as it was. See sanitize_field() for the per-field rules.
+	 *
+	 * `custom_cards` always resolves against `$input` directly rather than
+	 * falling back to the saved value when absent — the Quick links tab is a
+	 * full-form POST, so a missing key genuinely means every custom card row
+	 * was removed in the browser before submitting, not that the field
+	 * wasn't sent. Every other key falls back to its saved value.
+	 *
+	 * @param array  $input   Raw $_POST['settings'] (already wp_unslash()'d by the caller).
+	 * @param string $section A self::SECTIONS key. Unknown sections save nothing.
+	 */
+	public static function save_settings( array $input, string $section ): void {
+		if ( ! isset( self::SECTIONS[ $section ] ) ) {
+			return;
+		}
+
+		$settings = self::get_settings();
+
+		foreach ( self::SECTIONS[ $section ] as $key ) {
+			if ( 'custom_cards' === $key ) {
+				$settings[ $key ] = self::sanitize_custom_cards( $input['custom_cards'] ?? [] );
+				continue;
+			}
+			$settings[ $key ] = self::sanitize_field( $key, $input[ $key ] ?? $settings[ $key ] );
+		}
+
+		update_option( self::OPTION, $settings, false );
+	}
+
+	/**
+	 * Sanitises one scalar field. URL fields go through esc_url_raw() (input
+	 * sanitisation for a value that gets echoed through esc_url() on output
+	 * — see ~/.claude/rules/common/security.md), the team post type slug
+	 * through sanitize_key(), other text fields through
 	 * sanitize_text_field(). `welcome_text` is the one rich-content field
-	 * (admin-page.php renders it
-	 * with wp_editor(), so it can hold paragraphs/bold/links/lists) — sanitised
-	 * with wp_kses_post() instead, same allowed-tags list as any other
-	 * WYSIWYG field in this codebase, and re-run through wp_kses_post() again
-	 * at render time in class-dashboard.php (defence in depth on the escaping
-	 * side, not a substitute for sanitising here).
+	 * (admin-page.php renders it with wp_editor(), so it can hold
+	 * paragraphs/bold/links/lists) — sanitised with wp_kses_post() instead,
+	 * and re-run through wp_kses_post() again at render time in
+	 * class-dashboard.php (defence in depth on the escaping side, not a
+	 * substitute for sanitising here).
 	 *
 	 * An empty Support URL falls back to the Bonsai Zendesk default rather
 	 * than being saved as blank, since Support should always link somewhere.
 	 *
-	 * `custom_cards` always resolves against `$input` directly rather than
-	 * falling back to `$current` when absent — this settings screen is a
-	 * single full-page POST (not a partial/AJAX update), so a missing key
-	 * genuinely means every custom card row was removed in the browser
-	 * before submitting, not that the field wasn't sent.
-	 *
-	 * @param array $input Raw $_POST['settings'] (already wp_unslash()'d by the caller).
+	 * @param string $key   Option key.
+	 * @param mixed  $value Raw value.
+	 * @return mixed Sanitised value.
 	 */
-	public static function save_settings( array $input ): void {
-		$current = self::get_settings();
-
-		$support_url = esc_url_raw( (string) ( $input['support_url'] ?? $current['support_url'] ) );
-
-		update_option( self::OPTION, [
-			'analytics_url'      => esc_url_raw( (string) ( $input['analytics_url'] ?? $current['analytics_url'] ) ),
-			'support_url'        => $support_url ?: self::DEFAULT_SUPPORT_URL,
-			'team_cpt_slug'      => sanitize_key( (string) ( $input['team_cpt_slug'] ?? $current['team_cpt_slug'] ) ) ?: self::DEFAULT_TEAM_CPT_SLUG,
-			'logo_id'            => self::sanitize_logo_id( $input['logo_id'] ?? $current['logo_id'] ),
-			'logo_width'         => self::sanitize_logo_width( $input['logo_width'] ?? $current['logo_width'] ),
-			'welcome_heading'    => sanitize_text_field( (string) ( $input['welcome_heading'] ?? $current['welcome_heading'] ) ),
-			'welcome_text'       => wp_kses_post( (string) ( $input['welcome_text'] ?? $current['welcome_text'] ) ),
-			'custom_cards'       => self::sanitize_custom_cards( $input['custom_cards'] ?? [] ),
-			'welcome_bg_color'   => self::sanitize_color( (string) ( $input['welcome_bg_color'] ?? $current['welcome_bg_color'] ) ),
-			'welcome_text_color' => self::sanitize_color( (string) ( $input['welcome_text_color'] ?? $current['welcome_text_color'] ) ),
-			'icon_color'         => self::sanitize_color( (string) ( $input['icon_color'] ?? $current['icon_color'] ) ),
-			'text_color'         => self::sanitize_color( (string) ( $input['text_color'] ?? $current['text_color'] ) ),
-			'hover_bg_color'     => self::sanitize_color( (string) ( $input['hover_bg_color'] ?? $current['hover_bg_color'] ) ),
-			'hover_text_color'   => self::sanitize_color( (string) ( $input['hover_text_color'] ?? $current['hover_text_color'] ) ),
-		], false );
+	private static function sanitize_field( string $key, $value ) {
+		switch ( $key ) {
+			case 'analytics_url':
+				return esc_url_raw( (string) $value );
+			case 'support_url':
+				return esc_url_raw( (string) $value ) ?: self::DEFAULT_SUPPORT_URL;
+			case 'team_cpt_slug':
+				return sanitize_key( (string) $value ) ?: self::DEFAULT_TEAM_CPT_SLUG;
+			case 'logo_id':
+				return self::sanitize_logo_id( $value );
+			case 'logo_width':
+				return self::sanitize_logo_width( $value );
+			case 'welcome_heading':
+				return sanitize_text_field( (string) $value );
+			case 'welcome_text':
+				return wp_kses_post( (string) $value );
+			default:
+				// Every remaining key is a colour override (self::SECTIONS['colours']).
+				return self::sanitize_color( (string) $value );
+		}
 	}
 
 	/**
 	 * Sanitises the welcome panel logo. Stored as an attachment ID rather than
 	 * a URL so it survives a staging → live domain change without a
 	 * search-replace. Anything that isn't an existing image attachment is
-	 * dropped back to 0 ("no logo").
+	 * dropped back to 0 ("no logo"). Public because the White Label tab's
+	 * image fields use the same rule (class-white-label.php).
 	 *
 	 * @param mixed $value Raw attachment ID from the media picker's hidden input.
 	 * @return int Image attachment ID, or 0.
 	 */
-	private static function sanitize_logo_id( $value ): int {
+	public static function sanitize_logo_id( $value ): int {
 		$id = absint( $value );
 		return ( $id && wp_attachment_is_image( $id ) ) ? $id : 0;
 	}

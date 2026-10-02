@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Bonsai Dashboard
  * Plugin URI:  https://github.com/Bonsai-Systems/bonsai-dashboard
- * Description: Replaces the default wp-admin dashboard with a branded welcome panel and a quick-links grid (Pages, Posts, Team, Theme Setup, Analytics, Support). Analytics/Support links and the Team post type are configured per site under Settings → Bonsai Dashboard.
+ * Description: Replaces the default wp-admin dashboard with a branded welcome panel and a quick-links grid (Pages, Posts, Team, Theme Setup, Analytics, Support). Analytics/Support links and the Team post type are configured per site under Settings → Bonsai Dashboard, which also has a White Label tab (admin branding, login screen, admin menu hiding for non-agency users).
  * Version:     1.2.0
  * Author:      Ben Ervine / The Bonsai Digital Collective
  * Author URI:  https://thebonsaidigitalcollective.co.uk
@@ -45,6 +45,8 @@ define( 'BONSAI_DASHBOARD_URL', plugin_dir_url( __FILE__ ) );
 require_once BONSAI_DASHBOARD_DIR . 'includes/class-settings.php';
 require_once BONSAI_DASHBOARD_DIR . 'includes/class-admin-ui.php';
 require_once BONSAI_DASHBOARD_DIR . 'includes/class-admin-page.php';
+require_once BONSAI_DASHBOARD_DIR . 'includes/class-admin-access.php';
+require_once BONSAI_DASHBOARD_DIR . 'includes/class-white-label.php';
 require_once BONSAI_DASHBOARD_DIR . 'includes/class-dashboard.php';
 
 add_action( 'plugins_loaded', [ 'Bonsai_Dashboard_Plugin', 'init' ] );
@@ -53,6 +55,8 @@ final class Bonsai_Dashboard_Plugin {
 
 	public static function init(): void {
 		Bonsai_Dashboard_Admin_Page::init();
+		Bonsai_Dashboard_Admin_Access::init();
+		Bonsai_Dashboard_White_Label::init();
 		Bonsai_Dashboard_Widgets::init();
 	}
 }

@@ -1,9 +1,152 @@
 /**
- * admin-settings.css — Bonsai Dashboard settings screen: custom-cards
- * repeater row layout. Enqueued only on Settings → Bonsai Dashboard, see
- * class-admin-page.php::enqueue_assets(). Layered on bonsai-admin-ui.css,
- * which supplies the header, cards, form controls and buttons.
+ * admin-settings.css — Bonsai Dashboard settings screen: tab layout,
+ * image pickers, colour fields, the custom-cards repeater and the White
+ * Label tab's admin-menu list. Enqueued only on Settings → Bonsai
+ * Dashboard, see class-admin-page.php::enqueue_assets(). Layered on
+ * bonsai-admin-ui.css, which supplies the header, cards, form controls,
+ * buttons and colour tokens (--bonsai-ui-*). That file is a copy of the
+ * canonical design system, so the tab layout lives here rather than there —
+ * if other Bonsai plugins want the same tabs, move it into the canonical file.
  */
+
+/* Tabs: left-hand nav + panel (same layout as Vision Website) ---------- */
+
+.bonsai-dashboard-shell {
+  display: grid;
+  grid-template-columns: 200px minmax(0, 1fr);
+  gap: 32px;
+}
+
+.bonsai-dashboard-nav {
+  position: sticky;
+  top: 50px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-self: start;
+}
+
+.bonsai-dashboard-nav a {
+  padding: 11px 14px;
+  font-size: 13px;
+  color: var(--bonsai-ui-muted);
+  text-decoration: none;
+  border-radius: var(--bonsai-ui-radius-sm);
+}
+
+.bonsai-dashboard-nav a:hover {
+  color: var(--bonsai-ui-ink);
+  background: #e6e8ea;
+}
+
+.bonsai-dashboard-nav a:focus {
+  box-shadow: none;
+}
+
+.bonsai-dashboard-nav a:focus-visible {
+  outline: 2px solid var(--bonsai-ui-accent);
+  outline-offset: 1px;
+}
+
+.bonsai-dashboard-nav a[aria-current="page"] {
+  font-weight: 600;
+  color: #fff;
+  background: var(--bonsai-ui-ink);
+}
+
+.bonsai-ui .bonsai-dashboard-panel__title {
+  margin: 0 0 8px;
+  padding: 0;
+  font-size: 22px;
+  letter-spacing: -0.5px;
+  color: var(--bonsai-ui-ink);
+}
+
+.bonsai-dashboard-panel__lead {
+  max-width: 70ch;
+  margin: 0 0 20px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--bonsai-ui-muted);
+}
+
+@media (max-width: 960px) {
+  .bonsai-dashboard-shell {
+    grid-template-columns: 160px minmax(0, 1fr);
+    gap: 20px;
+  }
+}
+
+/* Small screens: nav becomes a horizontally scrolling row above the panel. */
+@media (max-width: 782px) {
+  .bonsai-dashboard-shell {
+    display: block;
+  }
+
+  .bonsai-dashboard-nav {
+    position: static;
+    flex-direction: row;
+    margin-bottom: 20px;
+    padding-bottom: 8px;
+    overflow-x: auto;
+  }
+
+  .bonsai-dashboard-nav a {
+    white-space: nowrap;
+  }
+}
+
+/* Image pickers (Bonsai_Dashboard_Admin_Page::media_field()) ----------- */
+
+/* wp-admin's .button-link sets its own display, which beats the UA
+   stylesheet's [hidden] rule — restate it so Remove/preview actually hide. */
+.bonsai-dashboard-media-field [hidden] {
+  display: none;
+}
+
+.bonsai-dashboard-media-field__preview img {
+  display: block;
+  max-width: 300px;
+  height: auto;
+  padding: 8px;
+  background: #f6f7f7;
+  border: 1px solid #dcdcde;
+  border-radius: 6px;
+}
+
+.bonsai-dashboard-media-field .bonsai-dashboard-media-field__remove {
+  margin-left: 8px;
+  color: #b32d2e;
+}
+
+/* Label + small input pairs on one line (logo width/height). */
+.bonsai-dashboard-inline-fields {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
+}
+
+.bonsai-dashboard-inline-fields input + label {
+  margin-left: 10px;
+}
+
+/* Colour fields --------------------------------------------------------- */
+
+.bonsai-dashboard-color-field {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  margin: 0 24px 8px 0;
+  vertical-align: top;
+}
+
+.bonsai-dashboard-color-field label {
+  font-weight: 600;
+}
+
+/* Custom-cards repeater (Quick links tab) ------------------------------- */
 
 .bonsai-dashboard-card-row {
   display: flex;
@@ -33,36 +176,50 @@
   color: #b32d2e;
 }
 
-/* wp-admin's .button-link sets its own display, which beats the UA
-   stylesheet's [hidden] rule — restate it so Remove/preview actually hide. */
-.bonsai-dashboard-logo-field [hidden] {
-  display: none;
+/* Admin menus list (White Label tab, class-admin-access.php) ------------ */
+
+.bonsai-dashboard-menu-list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 16px;
 }
 
-.bonsai-dashboard-logo-preview img {
-  display: block;
-  max-width: 300px;
-  height: auto;
-  padding: 8px;
-  background: #f6f7f7;
-  border: 1px solid #dcdcde;
-  border-radius: 6px;
-}
-
-.bonsai-dashboard-logo-field .bonsai-dashboard-logo-remove {
-  margin-left: 8px;
-  color: #b32d2e;
-}
-
-.bonsai-dashboard-color-field {
-  display: inline-flex;
-  flex-direction: column;
+.bonsai-dashboard-menu-list__item {
+  display: flex;
   align-items: flex-start;
-  gap: 4px;
-  margin: 0 24px 8px 0;
-  vertical-align: top;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--bonsai-ui-line);
+  border-radius: var(--bonsai-ui-radius-sm);
+  cursor: pointer;
 }
 
-.bonsai-dashboard-color-field label {
-  font-weight: 600;
+.bonsai-dashboard-menu-list__item:has(input:checked) {
+  background: var(--bonsai-ui-subtle);
+  border-color: var(--bonsai-ui-ink);
+}
+
+.bonsai-dashboard-menu-list__item input {
+  margin-top: 2px;
+}
+
+.bonsai-dashboard-menu-list__item small {
+  display: block;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 11px;
+  color: var(--bonsai-ui-muted);
+  word-break: break-all;
+}
+
+@media (max-width: 1100px) {
+  .bonsai-dashboard-menu-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 782px) {
+  .bonsai-dashboard-menu-list {
+    grid-template-columns: 1fr;
+  }
 }

@@ -7,6 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- White Label tab on Settings → Bonsai Dashboard, ported from the Vision
+  Website plugin as a White Label CMS replacement: hide WordPress branding,
+  admin bar logo/link, admin footer text/link, login screen logo, background
+  and colours. Everything defaults to blank, and blank leaves WordPress
+  unchanged. Images are stored as attachment IDs.
+- Agency users and admin menu hiding: an "Agency user" checkbox on user
+  profiles. Non-agency users get a trimmed admin menu, and hidden pages are
+  blocked by URL. Only active once at least one agency user exists. The
+  White Label tab is only visible to agency users from that point on.
+
+### Changed
+- Settings → Bonsai Dashboard is now tabbed (Welcome, Quick links, Colours,
+  White Label) with a left-hand nav, one form per tab. Saving a tab only
+  updates that tab's keys (`Bonsai_Dashboard_Settings::SECTIONS`).
+  No option keys changed for existing settings.
+- The logo picker is now a reusable media field
+  (`Bonsai_Dashboard_Admin_Page::media_field()`) shared with the White Label
+  images.
+- `uninstall.php` also removes the White Label and hidden-menu options and
+  the agency-user meta.
+
 ## [1.2.0] - 2026-09-30
 
 ### Added

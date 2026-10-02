@@ -34,7 +34,12 @@ registered, rather than linking to a 404 or permission error.
 
 ## Settings
 
-**Settings → Bonsai Dashboard**: welcome heading/text (defaults to Bonsai
+**Settings → Bonsai Dashboard** is split into tabs (left-hand nav, one tab
+per page load, each with its own Save button): **Welcome**, **Quick links**,
+**Colours** and **White Label**. Saving one tab never touches another's
+values.
+
+Welcome / Quick links: welcome heading/text (defaults to Bonsai
 Digital Collective boilerplate copy, editable or clearable per site),
 Analytics URL, Support
 URL (defaults to `https://bonsaidigitalcollective.zendesk.com/hc/en-gb/requests/new`,
@@ -45,13 +50,40 @@ system, a shared drive) — each row is a label, URL, dashicon class, and an
 "open in new tab" checkbox. A row with no label or URL is dropped when
 settings are saved. See `includes/class-settings.php`.
 
-Also under **Settings → Bonsai Dashboard**, an optional **colour overrides**
-section: welcome panel background/text, quick-link card icon/text, and
+**Colours** tab, all optional: welcome panel background/text, quick-link card icon/text, and
 quick-link card hover background/icon-text (colour picker, clearable). Left
 blank, each falls back to the Bonsai brand colours (or the active theme's ACF
 brand colour fields, where set) — see
 `Bonsai_Dashboard_Widgets::print_brand_colour_overrides()` in
 `includes/class-dashboard.php`.
+
+### White Label
+
+Ported from the Vision Website plugin (TTNG) to replace White Label CMS.
+Every field starts blank, and blank leaves WordPress as it is, so nothing
+Bonsai-branded appears on a site until someone sets it up.
+
+- **Branding**: hide WordPress branding (admin bar logo menu, footer credit,
+  version number), a custom admin bar logo and link, custom admin footer
+  text and link.
+- **Login screen**: logo (optional width/height; otherwise the image's own
+  proportions, up to 320px wide), background colour and image, and login box,
+  label, button, button text, button hover and link colours.
+- **Admin menus**: tick top-level menus to hide from non-agency users. Each
+  user profile gets an **Agency user** checkbox under "Bonsai access". Agency
+  users see the full admin. Everyone else, whatever their role, gets the
+  trimmed menu, and hidden pages are blocked by URL as well.
+
+Lockout safety: nothing is hidden until at least one agency user exists.
+Until then any administrator can tick the box and see the White Label tab.
+After that, only agency users can. The Dashboard and Profile are never
+hidden. **Settings is hidden by default**, so once an agency user exists,
+client admins lose access to Settings → Bonsai Dashboard too. Untick
+Settings on the White Label tab if a client should keep editing their
+welcome message or quick links.
+
+Deactivate White Label CMS once this is set up (the tab warns while it's
+active). Don't run it alongside Vision Website's own White Label tab either.
 
 ## Updates
 
@@ -71,8 +103,9 @@ build step.
 
 ## Uninstall
 
-`uninstall.php` removes this plugin's one option (`bonsai_dashboard_settings`).
-No other persisted state exists.
+`uninstall.php` removes this plugin's options (`bonsai_dashboard_settings`,
+`bonsai_dashboard_white_label`, `bonsai_dashboard_hidden_menus`) and the
+`bonsai_dashboard_agency_user` user meta from every user.
 
 ## Development notes
 
