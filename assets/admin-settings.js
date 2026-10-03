@@ -2,7 +2,7 @@
  * admin-settings.js — Bonsai Dashboard settings screen: the media-library
  * image pickers (Welcome logo, White Label images), the custom-cards
  * repeater (add/remove rows) and the colour swatch pickers.
- * Enqueued only on Settings → Bonsai Dashboard, see
+ * Enqueued only on Bonsai → Dashboard, see
  * class-admin-page.php::enqueue_assets(). Only one tab is rendered per page
  * load, so every block below simply does nothing when its markup isn't on
  * the page.

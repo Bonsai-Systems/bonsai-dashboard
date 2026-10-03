@@ -12,6 +12,7 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 delete_option( 'bonsai_dashboard_settings' );
 delete_option( 'bonsai_dashboard_white_label' );
 delete_option( 'bonsai_dashboard_hidden_menus' );
+delete_option( 'bonsai_dashboard_hub_menu_migrated' );
 
 // Bonsai_Dashboard_Admin_Access::META — the class isn't loaded during uninstall.
 delete_metadata( 'user', 0, 'bonsai_dashboard_agency_user', '', true );

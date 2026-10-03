@@ -11,7 +11,7 @@
  *   - An "Agency user" checkbox on each user's profile (user meta
  *     self::META). Agency users see the full admin. Everyone else, whatever
  *     their role (some clients are Administrators), gets the trimmed menu
- *     chosen on Settings → Bonsai Dashboard → White Label.
+ *     chosen on Bonsai → Dashboard → White Label.
  *   - Hidden menus are also blocked by URL (self::block_hidden_pages()), not
  *     just removed from the sidebar.
  *
@@ -52,13 +52,14 @@ class Bonsai_Dashboard_Admin_Access {
 
 		// Late, so every plugin has added its menus first.
 		add_action( 'admin_menu', [ __CLASS__, 'hide_menus' ], 9999 );
+		add_action( 'admin_init', [ __CLASS__, 'migrate_bonsai_menu' ] );
 		add_action( 'current_screen', [ __CLASS__, 'block_hidden_pages' ] );
 	}
 
 	/**
 	 * Top-level menus hidden until someone saves a choice: Appearance,
-	 * Plugins, Users, Tools, Settings and ACF. Only takes effect once an
-	 * agency user exists, so a fresh install is never trimmed.
+	 * Plugins, Users, Tools, Settings, Bonsai and ACF. Only takes effect once
+	 * an agency user exists, so a fresh install is never trimmed.
 	 */
 	public static function default_hidden_menus(): array {
 		return [
@@ -67,8 +68,32 @@ class Bonsai_Dashboard_Admin_Access {
 			'users.php',
 			'tools.php',
 			'options-general.php',
+			'bonsai', // Bonsai Hub menu (Bonsai_Hub::MENU_SLUG).
 			'edit.php?post_type=acf-field-group',
 		];
+	}
+
+	/**
+	 * One-off, from 1.4.0: Bonsai plugin settings used to sit under Settings
+	 * (and SEO/GEO under Tools), so hiding those hid them from clients too.
+	 * They now share the Bonsai menu, so a site that already hides Settings
+	 * or Tools gets Bonsai hidden as well, keeping clients out exactly as
+	 * before. Sites still on the defaults pick it up from
+	 * default_hidden_menus() instead.
+	 */
+	public static function migrate_bonsai_menu(): void {
+		if ( get_option( 'bonsai_dashboard_hub_menu_migrated' ) ) {
+			return;
+		}
+
+		$saved = get_option( self::OPTION, null );
+
+		if ( is_array( $saved ) && ! in_array( 'bonsai', $saved, true ) && array_intersect( [ 'options-general.php', 'tools.php' ], $saved ) ) {
+			$saved[] = 'bonsai';
+			update_option( self::OPTION, array_values( $saved ) );
+		}
+
+		update_option( 'bonsai_dashboard_hub_menu_migrated', 1 );
 	}
 
 	/** @return string[] */
@@ -127,7 +152,7 @@ class Bonsai_Dashboard_Admin_Access {
 				<td>
 					<label for="bonsai-dashboard-agency-user">
 						<input type="checkbox" id="bonsai-dashboard-agency-user" name="bonsai_dashboard_agency_user" value="1" <?php checked( self::is_agency( $user->ID ) ); ?>>
-						<?php esc_html_e( 'Sees the full admin menu and can change Settings → Bonsai Dashboard → White Label.', 'bonsai-dashboard' ); ?>
+						<?php esc_html_e( 'Sees the full admin menu and can change Bonsai → Dashboard → White Label.', 'bonsai-dashboard' ); ?>
 					</label>
 					<p class="description"><?php esc_html_e( 'Everyone else gets the trimmed menu set on the White Label tab. Menu hiding only switches on once at least one agency user exists.', 'bonsai-dashboard' ); ?></p>
 				</td>
@@ -271,7 +296,7 @@ class Bonsai_Dashboard_Admin_Access {
 		] );
 		?>
 		<section class="bonsai-ui-card" aria-labelledby="bonsai-dashboard-menus-title">
-			<h3 class="bonsai-ui-card__title" id="bonsai-dashboard-menus-title"><?php esc_html_e( 'Admin menus', 'bonsai-dashboard' ); ?></h3>
+			<h2 class="bonsai-ui-card__title" id="bonsai-dashboard-menus-title"><?php esc_html_e( 'Admin menus', 'bonsai-dashboard' ); ?></h2>
 			<p class="bonsai-ui-card__intro"><?php esc_html_e( 'Ticked menus are hidden from everyone who isn\'t an agency user, whatever their role, and their pages are blocked if someone types the address. The Dashboard and each user\'s own Profile are always available.', 'bonsai-dashboard' ); ?></p>
 
 			<?php if ( ! $agency ) : ?>

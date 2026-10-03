@@ -3,7 +3,7 @@
  * class-settings.php — Bonsai Dashboard's per-site configurable links.
  *
  * Analytics differs per site (each client has its own GA4/Looker Studio
- * dashboard), so it's entered once under Settings → Bonsai Dashboard.
+ * dashboard), so it's entered once under Bonsai → Dashboard.
  * Support defaults to the Bonsai Digital Collective Zendesk, but is
  * overridable per site. The Team quick link's post type slug is also
  * configurable, since not every theme names it the same way — see

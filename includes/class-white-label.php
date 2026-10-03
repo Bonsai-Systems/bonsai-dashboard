@@ -4,7 +4,7 @@
  *
  * Ported from the Vision Website plugin (TTNG), which replaced the parts of
  * the White Label CMS plugin those sites actually used. Shown as the
- * "White Label" tab on Settings → Bonsai Dashboard:
+ * "White Label" tab on Bonsai → Dashboard:
  *
  *   Branding     — hide WordPress branding (admin bar logo/links, footer
  *                  credit, version), a custom admin bar logo, custom admin
@@ -129,7 +129,7 @@ class Bonsai_Dashboard_White_Label {
 			<input type="hidden" name="action" value="bonsai_dashboard_save_white_label">
 
 			<section class="bonsai-ui-card" aria-labelledby="bonsai-dashboard-branding-title">
-				<h3 class="bonsai-ui-card__title" id="bonsai-dashboard-branding-title"><?php esc_html_e( 'Branding', 'bonsai-dashboard' ); ?></h3>
+				<h2 class="bonsai-ui-card__title" id="bonsai-dashboard-branding-title"><?php esc_html_e( 'Branding', 'bonsai-dashboard' ); ?></h2>
 				<p class="bonsai-ui-card__intro"><?php esc_html_e( 'Applies to everyone, agency users included.', 'bonsai-dashboard' ); ?></p>
 				<table class="form-table" role="presentation">
 					<tr>
@@ -158,7 +158,7 @@ class Bonsai_Dashboard_White_Label {
 			</section>
 
 			<section class="bonsai-ui-card" aria-labelledby="bonsai-dashboard-login-title">
-				<h3 class="bonsai-ui-card__title" id="bonsai-dashboard-login-title"><?php esc_html_e( 'Login screen', 'bonsai-dashboard' ); ?></h3>
+				<h2 class="bonsai-ui-card__title" id="bonsai-dashboard-login-title"><?php esc_html_e( 'Login screen', 'bonsai-dashboard' ); ?></h2>
 				<p class="bonsai-ui-card__intro"><?php esc_html_e( 'Anything left blank keeps the standard WordPress login screen.', 'bonsai-dashboard' ); ?></p>
 				<table class="form-table" role="presentation">
 					<tr>

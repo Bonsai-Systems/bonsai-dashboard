@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.4.0] - 2026-10-03
+
+### Added
+- [lib/bonsai-hub/] Bundled Bonsai Hub 1.0.0: a shared top-level **Bonsai** admin menu with a left-hand nav for every Bonsai plugin, plus a **Plugins** screen to install, activate and deactivate the rest of the suite from GitHub releases.
+- [includes/class-admin-access.php] **Bonsai** added to the menus hidden from non-agency users by default. A one-off migration also hides it on sites that already hide Settings or Tools, since Bonsai plugin settings used to live there.
+
+### Changed
+- [includes/class-admin-page.php] Settings moved from **Settings → Bonsai Dashboard** to **Bonsai → Dashboard** (`admin.php?page=bonsai-dashboard`). Its Welcome / Quick links / Colours / White Label tabs now use the hub's tab bar instead of their own left-hand nav. Old `options-general.php` links redirect. No option or field changes.
+- [includes/*.php] Card titles are now `h2` (were `h3` under a per-tab `h2` the hub no longer needs).
+
+### Removed
+- [includes/class-admin-ui.php, assets/bonsai-admin-ui.css, assets/bonsai-avatar.jpg] Per-plugin header and design-system copy. The hub now provides both.
+- [assets/admin-settings.css] Left-hand tab nav styles, now drawn by the hub.
+
 ## [1.3.0] - 2026-10-02
 
 ### Added

@@ -26,7 +26,7 @@ this plugin's own welcome panel replaces it.
 | Theme Setup | Always | `admin.php?page=theme-general-settings` |
 | Team | A post type matching the configured slug (default `team`) is registered | `edit.php?post_type={slug}` |
 | Analytics | An Analytics URL is set (below) | That URL, new tab |
-| Custom cards | Any rows added under Settings → Bonsai Dashboard | Whatever URL each card specifies, new tab if set |
+| Custom cards | Any rows added under Bonsai → Dashboard | Whatever URL each card specifies, new tab if set |
 | Support | Always — defaults to the Bonsai support desk | That URL, new tab |
 
 Team is hidden automatically on a site that doesn't have a matching post type
@@ -34,7 +34,7 @@ registered, rather than linking to a 404 or permission error.
 
 ## Settings
 
-**Settings → Bonsai Dashboard** is split into tabs (left-hand nav, one tab
+**Bonsai → Dashboard** is split into tabs (the hub's tab bar, one tab
 per page load, each with its own Save button): **Welcome**, **Quick links**,
 **Colours** and **White Label**. Saving one tab never touches another's
 values.
@@ -78,12 +78,20 @@ Lockout safety: nothing is hidden until at least one agency user exists.
 Until then any administrator can tick the box and see the White Label tab.
 After that, only agency users can. The Dashboard and Profile are never
 hidden. **Settings is hidden by default**, so once an agency user exists,
-client admins lose access to Settings → Bonsai Dashboard too. Untick
+client admins lose access to Bonsai → Dashboard too. Untick
 Settings on the White Label tab if a client should keep editing their
 welcome message or quick links.
 
 Deactivate White Label CMS once this is set up (the tab warns while it's
 active). Don't run it alongside Vision Website's own White Label tab either.
+
+## Bonsai menu
+
+This plugin's screens live in the shared **Bonsai** admin menu, provided by [Bonsai Hub](https://github.com/Bonsai-Systems/bonsai-hub). A copy of the hub is bundled in `lib/bonsai-hub/`, so this plugin sets up the menu on its own. Other Bonsai plugins appear alongside it, and **Bonsai → Plugins** installs, activates and deactivates the rest of the suite.
+
+- Don't edit `lib/bonsai-hub/` by hand. Change the bonsai-hub repo and run its `bin/sync.sh`.
+- Old `options-general.php?page=bonsai-dashboard` links redirect to the new screen. The White Label tab's menu hiding hides **Bonsai** from non-agency users by default.
+- Release zips must include `lib/`.
 
 ## Updates
 

@@ -2,9 +2,10 @@
 /**
  * class-admin-page.php — Bonsai Dashboard's settings screen.
  *
- * Settings → Bonsai Dashboard, laid out like the Vision Website plugin's
- * screen: Bonsai header, left-hand tab nav, one tab per page load (?tab=…),
- * each tab with its own form. Tabs are defined in self::tabs():
+ * Bonsai → Dashboard, registered with the shared Bonsai Hub
+ * (lib/bonsai-hub/), which prints the header, the left-hand plugin nav and
+ * the tab bar. One tab per page load (?tab=…), each tab with its own form.
+ * Tabs are defined in self::tabs():
  *   - Welcome     — logo, heading and text at the top of the dashboard
  *   - Quick links — Analytics/Support URLs, Team post type, custom cards
  *   - Colours     — welcome panel and quick-link card colour overrides
@@ -28,32 +29,44 @@ class Bonsai_Dashboard_Admin_Page {
 
 	const MENU_SLUG = 'bonsai-dashboard';
 
-	/**
-	 * Hook suffix returned by add_options_page(), used to scope
-	 * enqueue_assets() to this screen only rather than a hardcoded string
-	 * that would break if this ever moved out from under Settings.
-	 */
-	private static string $hook_suffix = '';
-
 	public static function init(): void {
-		add_action( 'admin_menu', [ __CLASS__, 'register_menu' ] );
+		add_filter( 'bonsai_hub_modules', [ __CLASS__, 'register_hub_module' ] );
 		add_action( 'admin_post_bonsai_dashboard_save_settings', [ __CLASS__, 'handle_save_settings' ] );
-		add_action( 'admin_enqueue_scripts', [ __CLASS__, 'enqueue_assets' ] );
 	}
 
-	public static function register_menu(): void {
-		self::$hook_suffix = (string) add_options_page(
-			__( 'Bonsai Dashboard', 'bonsai-dashboard' ),
-			__( 'Bonsai Dashboard', 'bonsai-dashboard' ),
-			'manage_options',
-			self::MENU_SLUG,
-			[ __CLASS__, 'render_page' ]
-		);
+	/**
+	 * Registers the settings screen and its tabs under the shared Bonsai
+	 * menu. Old options-general.php?page=bonsai-dashboard links are
+	 * redirected here by the hub.
+	 *
+	 * @param array $modules Modules registered so far.
+	 * @return array
+	 */
+	public static function register_hub_module( array $modules ): array {
+		$modules[ self::MENU_SLUG ] = [
+			'label'       => __( 'Dashboard', 'bonsai-dashboard' ),
+			'title'       => __( 'Bonsai Dashboard settings', 'bonsai-dashboard' ),
+			'description' => __( 'Controls the branded wp-admin dashboard (logo, welcome message, quick links, colours) and white-labelling of the admin and login screen.', 'bonsai-dashboard' ),
+			'version'     => BONSAI_DASHBOARD_VERSION,
+			'repo'        => 'https://github.com/Bonsai-Systems/bonsai-dashboard',
+			'links'       => [
+				[
+					'label' => __( 'View dashboard', 'bonsai-dashboard' ),
+					'url'   => admin_url( 'index.php' ),
+				],
+			],
+			'capability'  => 'manage_options',
+			'position'    => 5, // First under Bonsai: it's the one every site has.
+			'enqueue'     => [ __CLASS__, 'enqueue_assets' ],
+			'tabs'        => self::tabs(),
+		];
+
+		return $modules;
 	}
 
 	/**
 	 * Every tab, in display order. Each: label, description (lead paragraph
-	 * under the tab heading), render callback.
+	 * above the tab's content), render callback — the hub's tab format.
 	 *
 	 * @return array<string, array> Keyed by tab slug (?tab=…).
 	 */
@@ -90,86 +103,28 @@ class Bonsai_Dashboard_Admin_Page {
 	}
 
 	/**
-	 * The requested ?tab= slug, falling back to the first tab when it's
-	 * missing or unknown (or not available to this user).
-	 */
-	public static function current_tab(): string {
-		$tabs = self::tabs();
-		$tab  = sanitize_key( wp_unslash( $_GET['tab'] ?? '' ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only navigation.
-
-		return isset( $tabs[ $tab ] ) ? $tab : (string) array_key_first( $tabs );
-	}
-
-	/**
 	 * Admin URL for one tab, so redirects never hand-build the query string.
 	 *
 	 * @param string $tab   Tab slug.
-	 * @param array  $extra Extra query args (e.g. settings-updated).
+	 * @param array  $extra Extra query args (e.g. settings-updated, which
+	 *                      makes the hub show "Settings saved.").
 	 */
 	public static function tab_url( string $tab, array $extra = [] ): string {
 		return add_query_arg(
 			array_merge( [ 'page' => self::MENU_SLUG, 'tab' => $tab ], $extra ),
-			admin_url( 'options-general.php' )
+			admin_url( 'admin.php' )
 		);
 	}
 
-	public static function enqueue_assets( string $hook ): void {
-		if ( '' === self::$hook_suffix || $hook !== self::$hook_suffix ) {
-			return;
-		}
+	/**
+	 * Media library, colour pickers and the settings JS/CSS. Called by the
+	 * hub on this screen only, after the shared Bonsai styles.
+	 */
+	public static function enqueue_assets(): void {
 		wp_enqueue_media(); // Media library modal for the image pickers.
 		wp_enqueue_style( 'wp-color-picker' );
-		Bonsai_Dashboard_Admin_UI::enqueue();
-		wp_enqueue_style( 'bonsai-dashboard-admin', BONSAI_DASHBOARD_URL . 'assets/admin-settings.css', [ Bonsai_Dashboard_Admin_UI::HANDLE ], BONSAI_DASHBOARD_VERSION );
+		wp_enqueue_style( 'bonsai-dashboard-admin', BONSAI_DASHBOARD_URL . 'assets/admin-settings.css', [ 'bonsai-hub-ui' ], BONSAI_DASHBOARD_VERSION );
 		wp_enqueue_script( 'bonsai-dashboard-admin', BONSAI_DASHBOARD_URL . 'assets/admin-settings.js', [ 'jquery', 'wp-color-picker' ], BONSAI_DASHBOARD_VERSION, true );
-	}
-
-	/**
-	 * Page shell — Bonsai header, tab nav, the active tab's heading and
-	 * lead, then that tab's render callback.
-	 */
-	public static function render_page(): void {
-		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( esc_html__( 'You do not have permission to access this page.', 'bonsai-dashboard' ) );
-		}
-
-		$tabs    = self::tabs();
-		$current = self::current_tab();
-		$tab     = $tabs[ $current ];
-		?>
-		<div class="wrap bonsai-ui">
-			<?php
-			// No "Settings saved." notice here: core's options-head.php already
-			// prints one for any Settings sub-page loaded with ?settings-updated.
-			Bonsai_Dashboard_Admin_UI::header(
-				__( 'Bonsai Dashboard settings', 'bonsai-dashboard' ),
-				__( 'Controls the branded wp-admin dashboard (logo, welcome message, quick links, colours) and white-labelling of the admin and login screen.', 'bonsai-dashboard' ),
-				[
-					[
-						'label' => __( 'View dashboard', 'bonsai-dashboard' ),
-						'url'   => admin_url( 'index.php' ),
-					],
-				]
-			);
-			?>
-
-			<div class="bonsai-dashboard-shell">
-				<nav class="bonsai-dashboard-nav" aria-label="<?php esc_attr_e( 'Bonsai Dashboard settings', 'bonsai-dashboard' ); ?>">
-					<?php foreach ( $tabs as $slug => $item ) : ?>
-						<a href="<?php echo esc_url( self::tab_url( $slug ) ); ?>"<?php echo $slug === $current ? ' aria-current="page"' : ''; ?>><?php echo esc_html( $item['label'] ); ?></a>
-					<?php endforeach; ?>
-				</nav>
-
-				<div class="bonsai-dashboard-panel">
-					<h2 class="bonsai-dashboard-panel__title"><?php echo esc_html( $tab['label'] ); ?></h2>
-					<?php if ( ! empty( $tab['description'] ) ) : ?>
-						<p class="bonsai-dashboard-panel__lead"><?php echo esc_html( $tab['description'] ); ?></p>
-					<?php endif; ?>
-					<?php call_user_func( $tab['render'] ); ?>
-				</div>
-			</div>
-		</div>
-		<?php
 	}
 
 	/**
@@ -247,7 +202,7 @@ class Bonsai_Dashboard_Admin_Page {
 		self::open_settings_form( 'quick-links' );
 		?>
 			<section class="bonsai-ui-card" aria-labelledby="bonsai-dashboard-links-title">
-				<h3 class="bonsai-ui-card__title" id="bonsai-dashboard-links-title"><?php esc_html_e( 'Built-in links', 'bonsai-dashboard' ); ?></h3>
+				<h2 class="bonsai-ui-card__title" id="bonsai-dashboard-links-title"><?php esc_html_e( 'Built-in links', 'bonsai-dashboard' ); ?></h2>
 				<table class="form-table" role="presentation">
 					<tr>
 						<th scope="row"><label for="bonsai-dashboard-analytics-url"><?php esc_html_e( 'Analytics URL', 'bonsai-dashboard' ); ?></label></th>
@@ -274,7 +229,7 @@ class Bonsai_Dashboard_Admin_Page {
 			</section>
 
 			<section class="bonsai-ui-card" aria-labelledby="bonsai-dashboard-cards-title">
-				<h3 class="bonsai-ui-card__title" id="bonsai-dashboard-cards-title"><?php esc_html_e( 'Custom cards', 'bonsai-dashboard' ); ?></h3>
+				<h2 class="bonsai-ui-card__title" id="bonsai-dashboard-cards-title"><?php esc_html_e( 'Custom cards', 'bonsai-dashboard' ); ?></h2>
 				<p class="bonsai-ui-card__intro">
 					<?php
 					printf(

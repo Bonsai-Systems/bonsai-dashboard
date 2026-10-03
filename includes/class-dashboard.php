@@ -104,7 +104,7 @@ class Bonsai_Dashboard_Widgets {
 	 *    theme doesn't expose brand colour fields at all, per
 	 *    ~/.claude/rules/error-handling.md's "never assume a plugin/theme
 	 *    feature is active" rule.
-	 * 2. The explicit colour fields under Settings → Bonsai Dashboard
+	 * 2. The explicit colour fields under Bonsai → Dashboard
 	 *    (welcome/icon/text/hover), which are plugin settings rather than
 	 *    theme fields, so they're read regardless of whether ACF is active.
 	 *    dashboard.css defaults --bonsai-icon-color/--bonsai-hover-bg to
@@ -254,12 +254,12 @@ class Bonsai_Dashboard_Widgets {
 	 * Pages/Posts/Theme Setup always show (core post types and the theme's
 	 * general settings screen are always present). Team only shows when its
 	 * source post type actually exists on this site — the slug is
-	 * configurable under Settings → Bonsai Dashboard since not every theme
+	 * configurable under Bonsai → Dashboard since not every theme
 	 * names it the same way, per ~/.claude/rules/error-handling.md's "never
 	 * assume a plugin/theme feature is active" rule, rather than linking to a
 	 * 404/permission-denied screen on a site that doesn't have it. Analytics
-	 * only shows once its URL is configured. Custom cards (Settings → Bonsai
-	 * Dashboard's repeater) are appended after Analytics, in the order saved,
+	 * only shows once its URL is configured. Custom cards (the Bonsai → Dashboard
+	 * Quick links repeater) are appended after Analytics, in the order saved,
 	 * before Support — Support always shows last since it falls back to the
 	 * Bonsai Zendesk default (see class-settings.php).
 	 *
